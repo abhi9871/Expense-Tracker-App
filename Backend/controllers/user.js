@@ -17,6 +17,9 @@ exports.createUser = async (req, res, next) => {
         });
             res.status(400).json({ success: false, errors: validationErrors });
         }
+        else if(err.name === "SequelizeUniqueConstraintError"){
+            res.status(400).json({ success: false, errors: {email: 'Email already exists'} });
+        }
         else {
             console.log(err);
             res.status(500).json({ success: false, message: "Internal server error." });
