@@ -25,7 +25,7 @@
 .login-form {
   background-color: rgba(255,255,255,0.9); /* Adding a slightly transparent white background */
   flex: 1;
-  padding: 20px;
+  padding: 0px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -45,4 +45,13 @@
     display: flex;
     background-size: 100% auto; /* Adjust the left-section image width to keep aspect ratio */
   }
+
+  .login-form {
+    padding: 20px;
+  }
+
+  .box {
+    width: 70%;
+  }
+
 }
