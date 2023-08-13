@@ -26,3 +26,27 @@ exports.createUser = async (req, res, next) => {
         }
     }
 }
+
+exports.loginUser = async (req, res, next) => {
+    const { email, password } = req.body;
+    try{
+    const user = await User.findOne({
+        where: {
+            email: email
+        }
+    })
+    if(user){
+     if(user.password !== password){
+        res.json({ success: false, message: 'User not authorized' });
+    }
+     else{
+            res.json({ success: true, message: 'User login Successful!' });
+        }
+}
+    else {
+        res.json({ success: false, message: 'User does not exist' });
+    }
+    } catch(err) {
+        res.status(500).json({ success: false, message: 'An error occurred' });
+    }
+}
