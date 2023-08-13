@@ -1,12 +1,21 @@
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
 
 exports.createUser = async (req, res, next) => {
     const { name, email, password } = req.body;
     try {
+        const saltRounds = 10;
+        bcrypt.hash(password, saltRounds, async (err, hash) => {
+            if(err) {
+                console.log('Error hashing password:', err);
+                return;
+            }
+             // Store the hash in your password database
+        try {  
         const user = await User.create({
             name: name,
             email: email,
-            password: password
+            password: hash
         });
         res.status(200).json({ success: true, message: "Sign up successful." });
     } catch (err) {
@@ -24,6 +33,11 @@ exports.createUser = async (req, res, next) => {
             console.log(err);
             res.status(500).json({ success: false, message: "Internal server error." });
         }
+}
+})
+    } catch(err) {
+        console.error('Error:', err);
+        res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 }
 
@@ -36,15 +50,20 @@ exports.loginUser = async (req, res, next) => {
         }
     })
     if(user){
-     if(user.password !== password){
-        res.json({ success: false, message: 'User not authorized' });
-    }
-     else{
-            res.json({ success: true, message: 'User login Successful!' });
-        }
-}
+        bcrypt.compare(password, user.password, (err, result) => {
+            if(err) {
+                throw new Error('Something went wrong');
+            }
+            if(result){
+                res.json({ success: true, message: 'User login Successful!' });
+            }
+            if(user.password !== password){
+                res.json({ success: false, message: 'User not authorized' });
+            }
     else {
         res.json({ success: false, message: 'User does not exist' });
+    }
+})
     }
     } catch(err) {
         res.status(500).json({ success: false, message: 'An error occurred' });
