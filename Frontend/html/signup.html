@@ -4,55 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/signup.css">
     <title>Expense Tracker</title>
 </head>
-<body class="img">
-    <section>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-7 col-lg-5">
-                    <div class="signup-wrap">
-                        <h3 class="text-center mt-4">Create your account</h3>
-                        <form action="#" class="signup-form" id="signup-form">
-                            <div class="form-group mb-3">
-                                <label class="label" for="name">Full Name</label>
-                                    <input type="text" id="name" class="form-control" placeholder="John Doe" required>
-                                    <span class="icon fa fa-user-o"></span>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label for="mail">Email Address</label>
-                                <input type="email" id="email" class="form-control" placeholder="johndoe@gmail.com" required>
-                                <span class="icon fa fa-paper-plane-o"></span>
-                                </div>
-                                <div class="form-group mb-3">
-                                <label for="password">Password</label>
-                                <input id="password" type="password" class="form-control" placeholder="Password" required>
-                                <span class="icon fa fa-lock"></span>
-                                </div>
-                                <p id="passwordLengthMessage" class="text-center pwd-length"></p>
-                                <div class="form-group mb-3">
-                                <label for="password-confirm">Confirm Password</label>
-                                <input id="password-confirm" type="password" class="form-control" placeholder="Re-enter password" required>
-                                <span class="icon fa fa-lock"></span>
-                                </div>
-                                <p id="confirmPasswordMessage" class="text-center pwd-length"></p>
-                                <div class="form-group">
-                                <input type="submit" id="sign-up" class="form-control btn btn-primary px-3 submitButton" value="Sign Up">
-                                </div>
-                        </form>
-                        <p class="text-center">Already have an account?<a class="mx-2 link-decoration" href="#">Sign in</a></p>
-                    </div>
-                </div>
+<body>
+    <div class="container-fluid signup-container">
+      <div class="left-section">
+      </div>
+      <div class="signup-form">
+        <div class="card box">
+          <div class="card-body">
+        <h2 class="mb-4 card-title text-center">Create an account</h2>
+        <form>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+              </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
             </div>
-        </div>
-    </section>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+              <p id="passwordLengthMessage" class="text-center text-danger msg-text-size mt-1"></p>
+            </div>
+            <div class="mb-4">
+                <label for="password-confirm" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="password-confirm" placeholder="Re-enter your password" required>
+                <p id="confirmPasswordMessage" class="text-center text-danger msg-text-size mt-1"></p>
+              </div>
+              <div class="mb-3 text-center">
+                <input type="submit" class="btn btn-primary form-control fw-medium" value="Sign Up">
+              </div>
+        </form>
+        <span class="text-center">Already have an account?<a href="#" class="link-decoration link-primary mx-2 fw-medium">Sign in</a></span>
+      </div>
+      </div>
+      </div>
+    </div>
     <script src="../js/password.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="../js/signup.js"></script>
-</body>
+  </body>
 </html>

@@ -7,6 +7,7 @@
   display: flex;
   height: 100vh;
 }
+
 .left-section {
   background-image: url("../images/login-tracking.png"); /* Set the path to your image */
   background-size: cover;
@@ -20,6 +21,7 @@
   align-items: center;
   display: none;
 }
+
 .login-form {
   background-color: rgba(255,255,255,0.9); /* Adding a slightly transparent white background */
   flex: 1;
@@ -36,7 +38,6 @@
 
 .link-decoration {
   text-decoration: none !important;
-
 }
 
 @media (min-width: 768px) {

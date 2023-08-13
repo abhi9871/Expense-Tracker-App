@@ -10,11 +10,9 @@ function checkPasswordLength() {
     let password = passwordInput.value;
     if(password.length < 8 && password.length > 0){
         passwordLengthMsg.textContent = 'Password must be atleast 8 characters long';
-        passwordLengthMsg.style.marginTop = '-10px';
     }
     else {
         passwordLengthMsg.textContent = '';
-        passwordLengthMsg.style.marginTop = '0px';
     }
 }
 
@@ -27,11 +25,9 @@ function confirmPassword() {
     let confirmPwd = confirmPasswordInput.value;
     if(password !== confirmPwd && confirmPwd !== ''){
         confirmPasswordMessage.textContent = 'Password must be the same';
-        confirmPasswordMessage.style.marginTop = '-10px';
     }
     else {
         confirmPasswordMessage.textContent = '';
-        confirmPasswordMessage.style.marginTop = '0px';
     }
 }
 
