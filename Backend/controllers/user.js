@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
+const dotEnv = require('dotenv').config();
 
 exports.createUser = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -41,17 +43,23 @@ exports.loginUser = async (req, res, next) => {
       },
     });
     if (user) {
+        // Generate a jwt token to encrypt user id
+        const userId = user.id;
+        const userName = user.name;
+        const secretKey = process.env.SECRET_KEY;
+        const token = jwt.sign({id: userId, name: userName}, secretKey);
+
         const result = await bcrypt.compare(password, user.password);
         if(result){
-            res.status(200).json({ success: true, message: "User login successful!" });
+            res.status(200).json({ success: true, token: token });
         }
         else {
             res.status(401).json({ success: false, message: "User not authorized" });
         }
     } else {
-      res.status(404).json({ success: false, message: "User not found" });
+        res.status(404).json({ success: false, message: "User not found" });
     }
   } catch (err) {
-    res.status(500).json({ success: false, message: "An error occurred" });
+        res.status(500).json({ success: false, message: "An error occurred" });
   }
 };

@@ -23,6 +23,7 @@ toastr.options = {
 
 // Login function
 async function logIn(e) {
+    e.preventDefault();
     const email = document.getElementById('email');
     const password = document.getElementById('password');
 
@@ -31,18 +32,18 @@ async function logIn(e) {
         email: email.value,
         password: password.value
     }
-
     try {
         const response = await axios.post('http://localhost:5000/user/login', credentials);
-        if(response.data.success){
-            toastr.success(response.data.message);
+        if(response.data.success){ 
             loginForm.reset();
-        }
-        else{
-            toastr.error(response.data.message);
+            const token = response.data.token;
+            localStorage.setItem('token', token);
+            localStorage.setItem('isAuthenticated', true);
+            window.location.href = 'http://127.0.0.1:5500/Frontend/html/home.html';
         }
     } catch (err) {
         const error = err.response.data.message;
         toastr.error(error);
+        loginForm.reset();
     }
 }

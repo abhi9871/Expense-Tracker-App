@@ -39,6 +39,7 @@ async function signUp(e) {
             // Display a success message using Toastr
             toastr.success(response.data.message);
             signupForm.reset();
+            window.location.href = 'http://127.0.0.1:5500/Frontend/html/login.html';
         }
 
     } catch(err){
