@@ -2,6 +2,7 @@ const expenseForm = document.getElementById('expense-form');
 const expenseTableBody = document.getElementById('expense-table-body');
 const expenseBtn = document.getElementById('expense-btn');
 let isEdit = false; // Flag to check whether the expense needs to update or not.
+const token = localStorage.getItem('token');
 
 // Initialize Toastr options
 toastr.options = {
@@ -54,7 +55,7 @@ expenseForm.addEventListener('submit', submitExpenseDetails);
             updateExpense(expenseId, expenseDetails);
         }
         else{
-            createExpense(expenseDetails);
+            addExpense(expenseDetails);
         }
         expenseForm.reset();
 }
@@ -130,9 +131,9 @@ function expenseDetailsOnScreen(expenseData) {
 }
 
 // Create an expense function
-async function createExpense(expenseDataObj) {
+async function addExpense(expenseDataObj) {
     try{
-        const response = await axios.post('http://localhost:5000/expense/create-expense', expenseDataObj);
+        const response = await axios.post('http://localhost:5000/expense/create-expense', expenseDataObj, { headers: { "Authorization": `${token}` }});
         if(response.data.success){
         const expenseData = response.data.data;
         expenseDetailsOnScreen(expenseData);
@@ -146,7 +147,7 @@ async function createExpense(expenseDataObj) {
 
 async function getExpense(expenseId) {
     try{
-        const response = await axios.get(`http://localhost:5000/expense/get-expense/${expenseId}`);
+        const response = await axios.get(`http://localhost:5000/expense/get-expense/${expenseId}`, { headers: { "Authorization": token } });
         if(response.data.success){
             isEdit = true;
             const expense = response.data.data;
@@ -171,8 +172,6 @@ async function getExpense(expenseId) {
 // Get all the expenses function
 async function getExpenses() {
     try{
-        const token = localStorage.getItem('token');
-        console.log(token);
         const response = await axios.get('http://localhost:5000/expense/get-expenses', { headers: { "Authorization": token } });
         if(response.data.success){
             const expenseData = response.data.data;
@@ -190,7 +189,7 @@ async function getExpenses() {
 // Update an expense function
 async function updateExpense(expenseId, expenseData) {
     try{
-        const response = await axios.put(`http://localhost:5000/expense/edit-expense/${expenseId}`, expenseData);
+        const response = await axios.put(`http://localhost:5000/expense/edit-expense/${expenseId}`, expenseData, { headers: { "Authorization": `${token}` }});
         if(response.data.success){
             const expenseData = response.data;
             toastr.success(expenseData.message);
@@ -208,7 +207,7 @@ async function updateExpense(expenseId, expenseData) {
 // Delete an expense function
 async function deleteExpense(expenseId) {
     try{
-        const response = await axios.delete(`http://localhost:5000/expense/delete-expense/${expenseId}`);
+        const response = await axios.delete(`http://localhost:5000/expense/delete-expense/${expenseId}`, { headers: { "Authorization": `${token}` }});
         if(response.data.success){
             const expenseData = response.data;
             toastr.success(expenseData.message);

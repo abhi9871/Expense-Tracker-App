@@ -1,14 +1,18 @@
 const Expense = require('../models/expense');
 
 // Create an expense
-exports.createExpense = async (req, res) => {
-    const { category, description, amount, userId } = req.body;
+exports.addExpense = async (req, res) => {
+    const userId = req.user ? req.user.id : null;
+    if (!userId) {
+        return res.status(401).json({ success: false, message: 'User not authenticated' });
+    }
+    const { category, description, amount } = req.body;
     try {
         const expense = await Expense.create({
             category: category,
             description: description,
             amount: amount,
-            userId: req.user.id
+            userId: userId
         });
         res.status(200).json({ success: true, data: expense });
     } catch (err) {
@@ -19,7 +23,6 @@ exports.createExpense = async (req, res) => {
 
 // Get all the expenses for a particular user
 exports.getExpenses = async (req, res) => {
-    const userId = req.params.userId;
     try {
        const expenses = await Expense.findAll({
         where: {
@@ -38,10 +41,15 @@ exports.getExpense = async (req, res) => {
     const expenseId = req.params.expenseId;
     try {
         const expense = await Expense.findByPk(expenseId);
-        if (!expense) {
-            return res.status(404).json({ success: false, message: 'Expense not found' });
+        // Check for authenticated user
+        if(req.user.id === expense.userId){
+            if (!expense) {
+                return res.status(404).json({ success: false, message: 'Expense not found' });
+            }
+            res.status(200).json({ success: true, data: expense });
+        } else {
+            return res.status(401).json({ success: false, message: 'Unauthenticated user' });
         }
-        res.status(200).json({ success: true, data: expense });
     } catch (err) {
         console.log(err);
         res.status(500).json({ success: false, message: 'An error occurred while fetching expenses.' });
@@ -54,19 +62,25 @@ exports.editExpenseById = async (req, res) => {
     const { category, description, amount } = req.body;
     try {
         const expense = await Expense.findByPk(expenseId);
-        // Check if the expense exists or not
-        if (!expense) {
-            return res.status(404).json({ success: false, message: 'Expense not found' });
+
+        // Check for authenticated user
+        if(req.user.id === expense.userId){
+            // Check if the expense exists or not
+            if (!expense) {
+                return res.status(404).json({ success: false, message: 'Expense not found' });
+            }
+
+            // Update the expense properties
+            expense.category = category;
+            expense.description = description;
+            expense.amount = amount;
+
+            // Save the updated expense
+            const updatedExpense = await expense.save();
+            res.status(200).json({ success: true, message: 'Expense has been updated', data: updatedExpense });
+        } else {
+            return res.status(401).json({ success: false, message: 'Unauthenticated user' });
         }
-
-        // Update the expense properties
-        expense.category = category;
-        expense.description = description;
-        expense.amount = amount;
-
-        // Save the updated expense
-        const updatedExpense = await expense.save();
-        res.status(200).json({ success: true, message: 'Expense has been updated', data: updatedExpense });
     } catch (err) {
         console.log(err);
         res.status(500).json({ success: false, message: 'An error occured while updating expense' });
@@ -79,14 +93,19 @@ exports.deleteExpenseById = async (req, res) => {
     try {
         const expense = await Expense.findByPk(expenseId);
 
-        // Check if the expense exists or not
-        if (!expense) {
-            return res.status(404).json({ success: false, message: 'Expense not found' });
-        }
+        // Check for authenticated user
+        if(req.user.id === expense.userId){
+            // Check if the expense exists or not
+            if (!expense) {
+                return res.status(404).json({ success: false, message: 'Expense not found' });
+            }
 
-        // Delete the expense
-        const deletedExpense = await expense.destroy();
-        res.status(200).json({ success: true, message: 'Expense has been deleted' });
+            // Delete the expense
+            const deletedExpense = await expense.destroy();
+            res.status(200).json({ success: true, message: 'Expense has been deleted' });
+        } else {
+            return res.status(401).json({ success: false, message: 'Unauthenticated user' });
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({ success: false, message: 'An error occured while deleting expense' });
