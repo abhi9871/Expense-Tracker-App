@@ -47,8 +47,7 @@ exports.loginUser = async (req, res, next) => {
         const userId = user.id;
         const userName = user.name;
         const secretKey = process.env.SECRET_KEY;
-        const token = jwt.sign({id: userId, name: userName}, secretKey);
-
+        const token = jwt.sign({id: userId, name: userName}, secretKey, { expiresIn: '1h' });
         const result = await bcrypt.compare(password, user.password);
         if(result){
             res.status(200).json({ success: true, token: token });

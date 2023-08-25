@@ -31,7 +31,11 @@ const User = sequelize.define('user', {
                 msg: 'Password must be atleast 8 characters long' // Custom error message
             }
         }
-      }
+    },
+    isPremiumUser: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    }
 })
 
 module.exports = User;

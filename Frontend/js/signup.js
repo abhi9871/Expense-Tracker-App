@@ -22,6 +22,7 @@ toastr.options = {
 };
 
 async function signUp(e) {
+    e.preventDefault();
     const name = document.getElementById('name');
     const email = document.getElementById('email');
     const password = document.getElementById('password');
@@ -36,8 +37,7 @@ async function signUp(e) {
     try{
         const response = await axios.post('http://localhost:5000/user/signup', signupData);
         if(response.data.success){
-            // Display a success message using Toastr
-            toastr.success(response.data.message);
+            localStorage.setItem('isSignupSuccessful', true);
             signupForm.reset();
             window.location.href = 'http://127.0.0.1:5500/Frontend/html/login.html';
         }

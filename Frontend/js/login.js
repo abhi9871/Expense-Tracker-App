@@ -21,6 +21,13 @@ toastr.options = {
     hideMethod: "fadeOut"
 };
 
+     // To show success notification when user successfully signup
+     const isSignupSuccessful = JSON.parse(localStorage.getItem('isSignupSuccessful')); // To convert localstorage string value to boolean
+     if(isSignupSuccessful){
+         toastr.success('Signup Successful');
+         localStorage.setItem('isSignupSuccessful', false);
+     }
+
 // Login function
 async function logIn(e) {
     e.preventDefault();

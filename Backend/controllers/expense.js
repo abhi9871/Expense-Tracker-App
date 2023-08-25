@@ -29,7 +29,8 @@ exports.getExpenses = async (req, res) => {
             userId: req.user.id
         }
        });
-       res.status(200).json({ success: true, data: expenses });
+       const isPremiumUser = req.user.isPremiumUser;
+       res.status(200).json({ success: true, data: expenses, isPremiumUser });
     } catch (err) {
         console.log(err);
         res.status(500).json({ success: false, message: 'An error occurred while fetching expenses.' });

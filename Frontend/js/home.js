@@ -24,7 +24,7 @@ toastr.options = {
 };
 
     // To show success notification when user successfully login
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated')); // To convert localstorage string value to boolean
     if(isAuthenticated){
         toastr.success('Login Successful');
         localStorage.setItem('isAuthenticated', false);
@@ -178,11 +178,21 @@ async function getExpenses() {
             expenseData.forEach((expense) => {
                 expenseDetailsOnScreen(expense);
             })
+            //Check whether an user is a premium user or not
+            if(response.data.isPremiumUser){
+                const purchaseMembershipBtn = document.getElementById("purchase-membership");
+                purchaseMembershipBtn.style.display = 'none';
+            }
         }   
     } catch(err) {
-        const error = err.response.data.message;
-        toastr.error(error);
         console.log(err);
+        if (err.response && err.response.data && err.response.data.success === false) {
+            const errorMessage = err.response.data.message;
+            toastr.error(errorMessage);
+        } else {
+            // Handle other errors (e.g., network errors) or provide a generic error message.
+            toastr.error("An error occurred while fetching data.");
+        }
     }
 }
 
@@ -213,8 +223,14 @@ async function deleteExpense(expenseId) {
             toastr.success(expenseData.message);
         }
     } catch(err) {
-        const error = err.response.data.message;
-        toastr.error(error);
+        if (err.response && err.response.data && err.response.data.success === false) {
+            // The error response contains a 'success' property set to 'false'.
+            const errorMessage = err.response.data.message;
+            toastr.error(errorMessage);
+        } else {
+            // Handle other errors (e.g., network errors) or provide a generic error message.
+            toastr.error("An error occurred while deleting data.");
+        }
         console.log(err);
     }
 }
