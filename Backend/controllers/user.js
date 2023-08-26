@@ -3,7 +3,18 @@ const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const dotEnv = require('dotenv').config();
 
-exports.createUser = async (req, res, next) => {
+const generateToken = (userId, userName, isPremiumUser) => {
+  const secretKey = process.env.SECRET_KEY;
+  try {
+    const token = jwt.sign({ id: userId, name: userName, isPremiumUser }, secretKey, { expiresIn: '1h' });
+    return token;
+  } catch (error) {
+    console.error('Error generating token:', error);
+    throw error;
+  }
+}
+
+const createUser = async (req, res, next) => {
   const { name, email, password } = req.body;
   try {
     if (password.length < 8) {
@@ -34,7 +45,7 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
-exports.loginUser = async (req, res, next) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({
@@ -46,11 +57,10 @@ exports.loginUser = async (req, res, next) => {
         // Generate a jwt token to encrypt user id
         const userId = user.id;
         const userName = user.name;
-        const secretKey = process.env.SECRET_KEY;
-        const token = jwt.sign({id: userId, name: userName}, secretKey, { expiresIn: '1h' });
+        const isPremiumUser = user.isPremiumUser;
         const result = await bcrypt.compare(password, user.password);
         if(result){
-            res.status(200).json({ success: true, token: token });
+            res.status(200).json({ success: true, token: generateToken(userId, userName, isPremiumUser) });
         }
         else {
             res.status(401).json({ success: false, message: "User not authorized" });
@@ -62,3 +72,9 @@ exports.loginUser = async (req, res, next) => {
         res.status(500).json({ success: false, message: "An error occurred" });
   }
 };
+
+module.exports = {
+  generateToken,
+  createUser,
+  loginUser
+}

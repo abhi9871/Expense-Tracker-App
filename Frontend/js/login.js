@@ -41,6 +41,7 @@ async function logIn(e) {
     }
     try {
         const response = await axios.post('http://localhost:5000/user/login', credentials);
+        console.log(response);
         if(response.data.success){ 
             loginForm.reset();
             const token = response.data.token;

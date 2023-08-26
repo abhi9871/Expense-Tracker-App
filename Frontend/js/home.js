@@ -30,6 +30,17 @@ toastr.options = {
         localStorage.setItem('isAuthenticated', false);
     }
 
+    // Decoding a token to obtain user's information whether he/she is a premium user or not
+    function parseJwt (token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    
+        return JSON.parse(jsonPayload);
+    }
+
 // Add an event listener to the form
 expenseForm.addEventListener('submit', submitExpenseDetails);
 
@@ -178,14 +189,6 @@ async function getExpenses() {
             expenseData.forEach((expense) => {
                 expenseDetailsOnScreen(expense);
             })
-            //Check whether an user is a premium user or not
-        if(response.data.isPremiumUser){
-            const purchaseMembershipBtn = document.getElementById("purchase-membership");
-            purchaseMembershipBtn.style.display = 'none';
-        } else {
-            // Checking condition according to the buying premium
-            purchaseMembershipBtn.style.display = 'block';
-        }
         }   
     } catch(err) {
         console.log(err);
@@ -238,5 +241,28 @@ async function deleteExpense(expenseId) {
     }
 }
 
+// Show premium user tag who purchase premium
+function showPremiumUser(isPremiumUser) {
+    //Check whether an user is a premium user or not
+    if(isPremiumUser){
+        const purchaseMembershipBtn = document.getElementById("purchase-membership");
+        const message = document.getElementById("premium-msg"); 
+        purchaseMembershipBtn.style.display = 'none';
+        message.style.display = 'block';
+        message.textContent = 'Premium User';
+    } else {
+        // Checking condition according to the buying premium
+        purchaseMembershipBtn.style.display = 'block';
+    }
+}
+
 // Fetching the data while refreshing the page
-window.addEventListener('DOMContentLoaded', getExpenses);
+window.addEventListener('DOMContentLoaded', () => {
+    const decodedToken = parseJwt(token);
+    let isPremiumUser = decodedToken.isPremiumUser;
+    //Check whether an user is a premium user or not on reload
+    showPremiumUser(isPremiumUser);
+
+    // Fetching the data on screen reload
+    getExpenses();
+});

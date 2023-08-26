@@ -1,5 +1,6 @@
 const Razorpay = require('razorpay');
 const Order = require('../models/order');
+const userController = require('../controllers/user');
 const dotEnv = require('dotenv').config();
 
 // Buy premium function
@@ -37,12 +38,16 @@ exports.updateTransactionStatus = async (req, res) => {
         if(order) {
             if(status === 'successful') {
                 await req.user.update({ isPremiumUser: true });
+                // Update a jwt token after buying premium
+                const userId = req.user.id;
+                const userName = req.user.name;
+                const isPremiumUser = req.user.isPremiumUser;
+                const token = userController.generateToken(userId, userName, isPremiumUser);
+                res.status(200).json({ success: true, message: 'Transaction successful', token: token });
             }
-            let statusCode = (order.status === 'successful') ? 200 : 404;
-            let success = (order.status === 'successful');
-            let message = (order.status === 'successful') ? 'Transaction Successful' : 'Transaction Failed';
-            const isPremiumUser = req.user.isPremiumUser;
-            res.status(statusCode).json({ success: success, message: message, isPremiumUser });
+            else {
+                res.status(404).json({ success: false, message: 'Transaction failed' });
+            }          
         }
         else {
             res.status(404).json({ success: false, message: 'No order found' });

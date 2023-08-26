@@ -1,5 +1,5 @@
 const purchaseMembershipBtn = document.getElementById("purchase-membership");
-
+    
 // Initialize Toastr options
 toastr.options = {
   closeButton: true,
@@ -33,7 +33,6 @@ async function purchaseMembership(e) {
     order_id: order.id,
     handler: async function (response) {
             await updateTransactionStatus(token, response, order.id, false);
-            toastr.success("You are now a premium user");
     },
   };
 
@@ -65,6 +64,8 @@ async function getOrderId(token) {
     }
 }
 
+let hasReloaded = false;  // To reload the screen once after successful transaction
+
 async function updateTransactionStatus(token, response, orderId, isPaymentFailed) {
     try {
         const res = await axios.post(
@@ -78,8 +79,14 @@ async function updateTransactionStatus(token, response, orderId, isPaymentFailed
         );
         if(res.data.success){
             toastr.success(res.data.message);
-            if(res.data.isPremiumUser){
-                purchaseMembershipBtn.style.display = 'none'; // Hide button after payment is successful
+            localStorage.setItem('token', res.data.token);  // updating the token after purchasing the premium
+            toastr.success("You are now a premium user");
+            if(!hasReloaded){
+                setTimeout(()=>{
+                    location.reload();
+                    hasReloaded = true;
+                }, 2000);
+                
             }
         }
     } catch (err) {
