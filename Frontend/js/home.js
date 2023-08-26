@@ -179,10 +179,13 @@ async function getExpenses() {
                 expenseDetailsOnScreen(expense);
             })
             //Check whether an user is a premium user or not
-            if(response.data.isPremiumUser){
-                const purchaseMembershipBtn = document.getElementById("purchase-membership");
-                purchaseMembershipBtn.style.display = 'none';
-            }
+        if(response.data.isPremiumUser){
+            const purchaseMembershipBtn = document.getElementById("purchase-membership");
+            purchaseMembershipBtn.style.display = 'none';
+        } else {
+            // Checking condition according to the buying premium
+            purchaseMembershipBtn.style.display = 'block';
+        }
         }   
     } catch(err) {
         console.log(err);

@@ -43,7 +43,6 @@ async function purchaseMembership(e) {
 
   rzp1.on("payment.failed", async function (response) {
             await updateTransactionStatus(token, response, order.id, true);
-            toastr.error("Something went wrong");
   });
 }
 
@@ -79,6 +78,9 @@ async function updateTransactionStatus(token, response, orderId, isPaymentFailed
         );
         if(res.data.success){
             toastr.success(res.data.message);
+            if(res.data.isPremiumUser){
+                purchaseMembershipBtn.style.display = 'none'; // Hide button after payment is successful
+            }
         }
     } catch (err) {
         if (err.response && err.response.data && err.response.data.success === false) {

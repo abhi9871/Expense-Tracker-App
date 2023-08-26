@@ -38,8 +38,11 @@ exports.updateTransactionStatus = async (req, res) => {
             if(status === 'successful') {
                 await req.user.update({ isPremiumUser: true });
             }
+            let statusCode = (order.status === 'successful') ? 200 : 404;
+            let success = (order.status === 'successful');
             let message = (order.status === 'successful') ? 'Transaction Successful' : 'Transaction Failed';
-            res.status(200).json({ success: true, message: message });
+            const isPremiumUser = req.user.isPremiumUser;
+            res.status(statusCode).json({ success: success, message: message, isPremiumUser });
         }
         else {
             res.status(404).json({ success: false, message: 'No order found' });

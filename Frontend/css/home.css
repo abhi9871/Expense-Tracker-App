@@ -27,6 +27,10 @@ li a:focus {
     display: flex;
 }
 
+#purchase-membership {
+    display: none;
+}
+
 .right-list {
     margin-right: -10px !important;
     display: flex;
