@@ -15,22 +15,28 @@ async function startTransaction() {
 
 // Update the user's totalExpenses in the database
 async function updateUserTotalExpenses(userId, amount, transaction) {
+    try{
     const user = await User.findByPk(userId, { transaction });
     if (user) {
         user.totalExpenses += Number(amount);
         await user.save({ transaction }); // Save the updated user
     }
+ } catch(err) {
+    throw new Error('Error while updating the total expenses');
+ }
 }
 
 // Create an expense with the transaction
 exports.addExpense = async (req, res) => {
-    let t; // Declare the transaction variable
-    const userId = req.user ? req.user.id : null;
-    if (!userId) {
-        return res.status(401).json({ success: false, message: 'User not authenticated' });
-    }
-    const { category, description, amount } = req.body;
     try {
+        let t; // Declare the transaction variable
+        const userId = req.user ? req.user.id : null;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
+
+        const { category, description, amount } = req.body;
+
         // Start the transaction
         t = await startTransaction();
         const expense = await Expense.create({
@@ -72,8 +78,8 @@ exports.getExpenses = async (req, res) => {
 
 // Get an expense details for a particular expense id
 exports.getExpense = async (req, res) => {
-    const expenseId = req.params.expenseId;
     try {
+        const expenseId = req.params.expenseId;
         const expense = await Expense.findByPk(expenseId);
         // Check for authenticated user
         if(req.user.id === expense.userId){
@@ -92,10 +98,11 @@ exports.getExpense = async (req, res) => {
 
 // Update an expense by the expense id
 exports.editExpenseById = async (req, res) => {
-    let t; // Declare a transaction variable
-    const expenseId = req.params.expenseId;
-    const { category, description, amount } = req.body;
     try {
+        let t; // Declare a transaction variable
+        const expenseId = req.params.expenseId;
+        const { category, description, amount } = req.body;
+
         // Start the transaction
         t = await startTransaction();
         const expense = await Expense.findByPk(expenseId, { transaction: t });
@@ -138,9 +145,10 @@ exports.editExpenseById = async (req, res) => {
 
 // Delete an expense by the expense id
 exports.deleteExpenseById = async (req, res) => {
-    let t; // Declare a transaction variable
-    const expenseId = req.params.expenseId;
     try {
+        let t; // Declare a transaction variable
+        const expenseId = req.params.expenseId;
+
         // Start the transaction
         t = await startTransaction();
 

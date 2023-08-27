@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const dotEnv = require('dotenv').config();
 
 const generateToken = (userId, userName, isPremiumUser) => {
-  const secretKey = process.env.SECRET_KEY;
   try {
+    const secretKey = process.env.SECRET_KEY;
     const token = jwt.sign({ id: userId, name: userName, isPremiumUser }, secretKey, { expiresIn: '1h' });
     return token;
   } catch (error) {
@@ -15,8 +15,9 @@ const generateToken = (userId, userName, isPremiumUser) => {
 }
 
 const createUser = async (req, res, next) => {
-  const { name, email, password } = req.body;
   try {
+    const { name, email, password } = req.body;
+
     if (password.length < 8) {
       return res.status(400).json({success: false, errors: { password: "Password must be atleast 8 characters long" } });
     }
@@ -46,8 +47,8 @@ const createUser = async (req, res, next) => {
 };
 
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
   try {
+    const { email, password } = req.body;
     const user = await User.findOne({
       where: {
         email: email,
