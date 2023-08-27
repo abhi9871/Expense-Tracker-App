@@ -1,4 +1,14 @@
 const Expense = require('../models/expense');
+const User = require('../models/user');
+
+// Update the user's totalExpenses in the database
+async function updateUserTotalExpenses(userId, amount) {
+    const user = await User.findByPk(userId);
+    if (user) {
+        user.totalExpenses += Number(amount);
+        await user.save(); // Save the updated user
+    }
+}
 
 // Create an expense
 exports.addExpense = async (req, res) => {
@@ -14,6 +24,10 @@ exports.addExpense = async (req, res) => {
             amount: amount,
             userId: userId
         });
+
+        // Update user total expenses in the database as well
+            updateUserTotalExpenses(userId, amount);
+
         res.status(200).json({ success: true, data: expense });
     } catch (err) {
         console.log(err);
@@ -70,6 +84,11 @@ exports.editExpenseById = async (req, res) => {
                 return res.status(404).json({ success: false, message: 'Expense not found' });
             }
 
+            // Update user total expenses in the database as well
+            let updatedAmount = amount - expense.amount;
+            console.log(updatedAmount);
+            updateUserTotalExpenses(expense.userId, updatedAmount);
+            
             // Update the expense properties
             expense.category = category;
             expense.description = description;
@@ -99,6 +118,10 @@ exports.deleteExpenseById = async (req, res) => {
             if (!expense) {
                 return res.status(404).json({ success: false, message: 'Expense not found' });
             }
+            
+            // Update user total expenses in the database as well
+            const amount = -expense.amount;
+            updateUserTotalExpenses(expense.userId, amount);
 
             // Delete the expense
             const deletedExpense = await expense.destroy();
