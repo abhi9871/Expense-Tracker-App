@@ -41,6 +41,22 @@ toastr.options = {
         return JSON.parse(jsonPayload);
     }
 
+    // Allow only premium users
+    function allowPremiumFeature() {
+        const leaderBoard = document.getElementById('leaderboard');
+        leaderBoard.addEventListener('click', (e) => {
+            e.preventDefault();
+            const decodeToken = parseJwt(token);
+            if(decodeToken.isPremiumUser){
+                window.location.href = 'http://127.0.0.1:5500/Frontend/html/leaderboard.html';
+            } else {
+                toastr.warning('You are not a premium user');
+            }
+        })
+    }
+
+    allowPremiumFeature();
+
 // Add an event listener to the form
 expenseForm.addEventListener('submit', submitExpenseDetails);
 

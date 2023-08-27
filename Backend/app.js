@@ -5,6 +5,7 @@ const sequelize = require('./utils/database');
 const userRoutes = require('./routes/user');
 const expenseRoutes = require('./routes/expense');
 const purchaseRoutes = require('./routes/purchase');
+const leaderboardRoutes = require('./routes/leaderboard');
 const User = require('./models/user');
 const Expense = require('./models/expense');
 const Order = require('./models/order');
@@ -25,6 +26,7 @@ app.use(bodyParser.json());
 app.use('/user', userRoutes);
 app.use('/expense', expenseRoutes);
 app.use('/purchase', purchaseRoutes);
+app.use('/premium', leaderboardRoutes);
 
 sequelize.sync()
 .then(() => {
