@@ -15,8 +15,8 @@ exports.getLeaderBoard = async (req, res) => {
             attributes: [],
           },
         ],
-        group: ['User.id', 'User.name'], // Group by both 'id' and 'name'
-        order: [[sequelize.fn('SUM', sequelize.col('expenses.amount')), 'DESC']], // Order by 'TotalExpenses' in descending order
+        group: ['user.id'], // Group by both 'id' and 'name'
+        order: [[sequelize.col('totalExpenses'), 'DESC']], // Order by 'TotalExpenses' in descending order
       });
   
       console.log(JSON.stringify(usersWithExpenses, null, 2));
