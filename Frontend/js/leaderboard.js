@@ -77,10 +77,10 @@ function showPremiumUser(isPremiumUser) {
 }
 
 // Fetching the data while refreshing the page
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     const decodedToken = parseJwt(token);
     let isPremiumUser = decodedToken.isPremiumUser;
     //Check whether an user is a premium user or not on reload
     showPremiumUser(isPremiumUser);
-    getLeaderBoardData();
+    await getLeaderBoardData();
 });
