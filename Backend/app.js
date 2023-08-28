@@ -10,7 +10,9 @@ const resetPasswordRoutes = require('./routes/resetpassword');
 const User = require('./models/user');
 const Expense = require('./models/expense');
 const Order = require('./models/order');
-const port = 5000;
+const ForgotPasswordRequest = require('./models/forgotpasswordrequest');
+const dotenv = require('dotenv');
+dotenv.config();    // To use env file variables
 
 const app = express();
 
@@ -21,6 +23,10 @@ Expense.belongsTo(User);
 // Relation b/w user and order models
 User.hasMany(Order);
 Order.belongsTo(User);
+
+// Relation b/w user and forgotpasswordrequest
+User.hasMany(ForgotPasswordRequest);
+ForgotPasswordRequest.belongsTo(User);
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -33,7 +39,7 @@ app.use('/password', resetPasswordRoutes);
 sequelize.sync()
 .then(() => {
     console.log(`Server is starting at ${port}`);
-    app.listen(port);
+    app.listen(process.env.PORT || 3000);
 })
 .catch(err => {
     console.log(err);
