@@ -10,15 +10,3 @@
     flex-direction: column;
     justify-content: center;
 }
-
-@media (max-width:580px){
-    #text-1{
-        display: block;
-    }
-    #text-2{
-        width: 100%;
-    }
-    #text-3{
-        width: 100%;
-    }
-};
