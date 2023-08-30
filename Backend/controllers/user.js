@@ -1,7 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-const dotEnv = require('dotenv').config();
+const dotEnv = require('dotenv');
+dotEnv.config(); // To access env variables
 
 const generateToken = (userId, userName, isPremiumUser) => {
   try {
@@ -18,7 +19,7 @@ const createUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    if (password.length < 8) {
+    if (password.split(' ').join('').length < 8 < 8) {
       return res.status(400).json({success: false, errors: { password: "Password must be atleast 8 characters long" } });
     }
     const saltRounds = 10;

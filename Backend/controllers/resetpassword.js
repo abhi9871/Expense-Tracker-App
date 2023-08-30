@@ -1,16 +1,22 @@
 const Brevo = require("@getbrevo/brevo");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
-const { v4: uuidv4 } = require('uuid');
+const path = require("path"); // Import the path module
+const { v4: uuidv4 } = require("uuid");
 const User = require("../models/user");
 const ForgotPasswordRequest = require("../models/forgotpasswordrequest");
 
-dotenv.config();    // To use env file variables
+dotenv.config(); // To use env file variables
 
 // Hashing the password function
 const hashPassword = async (password, saltRounds) => {
-  return await bcrypt.hash(password, saltRounds);
-}
+  try {
+    return await bcrypt.hash(password, saltRounds);
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+};
 
 // Function to send reset link
 exports.forgotPassword = async (req, res) => {
@@ -19,81 +25,159 @@ exports.forgotPassword = async (req, res) => {
     const requestId = uuidv4();
     const user = await User.findOne({ where: { email: email } });
 
-    if(!user) {
-        return res.status(404).json({ success: false, message: 'This email address does not exist. Please try with a valid email address' });
+    if (!user) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message:
+            "This email address does not exist. Please try with a valid email address",
+        });
     }
 
     // Create a request id after the mail verified
-      await ForgotPasswordRequest.create({
-        id: requestId,
-        userId: user.id
-      })
+    await ForgotPasswordRequest.create({
+      id: requestId,
+      userId: user.id,
+    });
 
-      const client = Brevo.ApiClient.instance;
-      const apiKey = client.authentications["api-key"];
-      apiKey.apiKey = process.env.BREVO_KEY;
-      const transEmailApi = new Brevo.TransactionalEmailsApi();
-      const sender = {
-        email: "abhishektomar0802@gmail.com",
-        name: "Abhishek",
-      };
-      const receivers = [
-        {
-          email: email,
-        },
-      ];
+    const client = Brevo.ApiClient.instance;
+    const apiKey = client.authentications["api-key"];
+    apiKey.apiKey = process.env.BREVO_KEY;
+    const transEmailApi = new Brevo.TransactionalEmailsApi();
+    const sender = {
+      email: "abhishektomar0802@gmail.com",
+      name: "Abhishek",
+    };
+    const receivers = [
+      {
+        email: email,
+      },
+    ];
 
-      const response= await transEmailApi.sendTransacEmail({
-        sender,
-        to: receivers,
-        subject: "Expense Tracker Reset Password",
-        textContent: "Regain control of your financial journey! Reset your password and stay on top of your expenses with ease.",
-        htmlContent: `<h3>Hi! We got the request from you to reset the password. Click the button below:</h3>
-        <p><a href="http://localhost:5000/password/resetpassword/{{params.requestId}}" style="display: inline-block; background-color: #007BFF; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px;">Reset Password</a></p>`,
-        params: {
-          requestId: requestId,
-        }
-      });
-      console.log(response);
-      res.status(200).json({ success: true, message: 'An email containing the reset link has been sent to your email address' });
-    
+    const response = await transEmailApi.sendTransacEmail({
+      sender,
+      to: receivers,
+      subject: "Expense Tracker Reset Password",
+      htmlContent: `<html>
+        <head>
+            <style>    
+                .email-content {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%) !important;
+                    border-radius: 10px;
+                }
+                .email-content p {
+                    color: black;
+                }
+                .reset-link {
+                    text-align: center;
+                }
+                a {
+                  text-decoration: none;
+                  color: white !important;
+                  display: inline-block;
+                  background-color: #007BFF;
+                  padding: 10px 20px;
+                  border-radius: 5px;
+                }
+                h1 {
+                    color: #007BFF;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-content">
+                <h1>Expense Tracker <span>&#x1F60A;</span></h1>
+                <p>Regain control of your financial journey! Reset your password and stay on top of your expenses with ease.</p>
+                <p>Hi {{params.userName}}! We received a request from you to reset your password. Click the button below to reset your password:</p>
+                <div class="reset-link">
+                <a href="http://localhost:5000/password/resetpassword/{{params.requestId}}" class="button">Reset Password</a>
+                </div>
+            </div>
+        </body>
+        </html>`,
+      params: {
+        requestId: requestId,
+        userName: user.name,
+      },
+    });
+    res.status(200).json({ 
+      success: true, 
+      message: "An email containing the reset link has been sent to your email address" 
+    });
   } catch (err) {
     console.log(err);
-    res.status(404).json({ success: false, message: "Something went wrong while sending the reset link" });
+    res.status(404).json({
+        success: false,
+        message: "Something went wrong while sending the reset link",
+      });
+  }
+};
+
+exports.resetPasswordPage = async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+    const response = await ForgotPasswordRequest.findByPk(requestId);
+    if (!response) {
+      return res.status(404).send("Invalid link or request ID");
+    }
+
+    // Check for the link whether it is expired or not
+    const expirationTime =
+      new Date(response.createdAt).getTime() + 30 * 60 * 1000; // 30 minutes in milliseconds
+    const currentTime = new Date().getTime(); // Current time in milliseconds
+
+    if (currentTime > expirationTime) {
+      await ForgotPasswordRequest.update({ isActive: "false" }, { where: { id: response.id }});
+      return res.status(404).send("Link has expired");
+    }
+
+    // Serve the reset password HTML page
+    res.status(200).render("resetpassword", { requestId: requestId, success: true });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
   }
 };
 
 // Function for resetting the password
-exports.resetPassword = async (req, res) => {
-    try {
-        const requestId = req.params.requestId;
-        const { updatedPassword } = req.body;
-        const response = await ForgotPasswordRequest.findByPk(requestId);
+exports.updatePassword = async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+    const updatedPassword = req.body.password; // to call by element name or id attribute
+    const response = await ForgotPasswordRequest.findByPk(requestId);
 
-        if(response.isActive) {   // Check whether the request id is active or not
+    if (response.isActive) {
+      // Check whether the request id is active or not
 
-            if (updatedPassword.length < 8) {   // Check for the password length
-                return res.status(400).json({ success: false, errors: { password: "Password must be atleast 8 characters long" } });
-            }
-
-            const saltRounds = 10;
-            const password = hashPassword(updatedPassword, saltRounds);
-            const userId = response.userId;
-            const updatedPasswordResponse = await User.update({ password: password }, { where: { id: userId } });
-
-            if(updatedPasswordResponse) {
-                await ForgotPasswordRequest.update({ isActive: 'false' }, { where: { id: response.id } });
-                res.status(200).json({ success: true, message: "Your expense tracker app password has been successfully updated. You're all set to manage your finances securely." });
-            }
-            else {
-              return res.status(404).json({ success: false, message: 'Failed to reset the password' });
-            }
-            
-      } else {
-          res.status(404).json({ success: false, message: 'This link is expired' });
+      if (updatedPassword.split(" ").join("").length < 8) {
+        // Check for the password length
+        return res
+          .status(400)
+          .render("resetpassword", { requestId: requestId, success: false });
       }
-    } catch(err) {
-        res.status(500).json({ message: 'Something went wrong' });
-      console.log(err);
+
+      const saltRounds = 10;
+      const password = await hashPassword(updatedPassword, saltRounds); // Call the hashPassword function and await its result
+      const userId = response.userId;
+      await User.update({ password: password }, { where: { id: userId } });
+      await ForgotPasswordRequest.update(
+        { isActive: "false" },
+        { where: { id: response.id } }
+      );
+      res.status(200).send(`<script>
+            alert("Your expense tracker app password has been successfully updated. You're all set to manage your finances securely.");
+            window.location.href = 'http://127.0.0.1:5500/Frontend/html/login.html';
+            </script>`);
+    } else {
+      res.status(404).send("This link is expired");
     }
-}
+  } catch (err) {
+    res.status(500).send("Something went wrong");
+    console.log(err);
+  }
+};
