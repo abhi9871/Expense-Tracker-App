@@ -7,16 +7,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../css/home.css">
-    <link rel="stylesheet" href="../css/leaderboard.css">
-    <title>Leaderboard</title>
+    <link rel="stylesheet" href="../css/report.css">
+    <title>Expense Report</title>
 </head>
 <body>
-      <header>
+    <header>
         <div class="px-3 py-2 text-bg-dark border-bottom">
           <div class="container-fluid">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
              <div class="logo">
-              <a href="#" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none fw-bold">
+              <a href="home.html" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none fw-bold">
                 <i class="bi bi-currency-euro" style="font-size: 2rem;"></i>
                 Expense Tracker
               </a>
@@ -35,7 +35,7 @@
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="#" class="nav-link text-white">
+                  <a href="report.html" class="nav-link text-white">
                     <i class="bi bi-file-earmark-bar-graph mx-3 mb-1 d-block list-font-style"></i>
                     Reports
                   </a>
@@ -75,29 +75,49 @@
       <section>
         <div class="container">
           <div class="my-4 bg-dark text-white py-4 px-3 rounded border-shadow text-center">
-            <h2>LEADERBOARD <span>&#127942</span></h2>
+            <h2>EXPENSE REPORT <span>&#128202</span></h2>
         </div>
-        
-          <div class="bg-secondary-subtle p-2 rounded border-shadow table-responsive">
-            <table class="table table-striped my-2">
-              <thead>
-                <tr class="text-center">
-                  <th><i class="bi bi-bookmark-star-fill leaderboard-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Position"></i></th>
-                  <th><i class="bi bi-person-fill leaderboard-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="User"></i></th>
-                  <th><i class="bi bi-cash-coin leaderboard-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Total amount"></i></th>
-                </tr>
-              </thead>
-              <tbody class="text-center" id="leaderboard-table-body">
-              </tbody>
-            </table>
-          </div>        
+        <div class="container mb-4">
+        <div class="d-flex justify-content-around">
+            <button class="btn btn-secondary btn-lg rounded-pill shadow state">Daily</button>
+            <button class="btn btn-secondary btn-lg rounded-pill shadow state">Monthly</button>
+            <button class="btn btn-secondary btn-lg rounded-pill shadow state">Yearly</button>
         </div>
-      </section>
-      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-      <script src="../js/leaderboard.js"></script>
-      <script src="../js/logout.js"></script>
-      <script src="../js/toggle.js"></script>
+    </div>
+    <div class="expense-details bg-secondary-subtle p-2 rounded border-shadow table-responsive">
+      <table class="table table-striped text-center my-2">
+        <thead>
+          <tr>
+            <th><i class="bi bi-calendar3 table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Date"></i></th>
+            <th><i class="bi bi-list-task table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Category"></i></th>
+            <th><i class="bi bi-receipt table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Description"></i></th>
+            <th><i class="bi bi-currency-rupee table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Amount"></i></th>
+          </tr>
+        </thead>
+        <tbody id="expense-table-body">
+        </tbody>
+        <tfoot id="footer">
+          <tr>
+            <td></td>
+            <td></td>
+            <td id="footer-total">Total Amount</td>
+            <td id="footer-amount">25000</td>
+          </tr>
+      </tfoot>
+      </table>
+    </div>
+      <div class="d-flex justify-content-end my-4">
+        <!-- Download Button -->
+        <button class="btn btn-secondary btn-lg rounded-pill shadow state" data-bs-toggle="tooltip" data-bs-placement="top" title="Download">
+          <i class="bi bi-download fs-2"></i>
+        </button>
+      </div>
+    </div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="../js/logout.js"></script>
+    <script src="../js/toggle.js"></script>
 </body>
 </html>
