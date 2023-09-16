@@ -127,13 +127,12 @@ exports.resetPasswordPage = async (req, res) => {
     }
 
     // Check for the link whether it is expired or not
-    const expirationTime =
-      new Date(response.createdAt).getTime() + 30 * 60 * 1000; // 30 minutes in milliseconds
+    const expirationTime = new Date(response.createdAt).getTime() + 30 * 60 * 1000; // 30 minutes in milliseconds
     const currentTime = new Date().getTime(); // Current time in milliseconds
 
     if (currentTime > expirationTime) {
       await ForgotPasswordRequest.update({ isActive: "false" }, { where: { id: response.id }});
-      return res.status(404).send("Link has expired");
+      return res.status(404).send("This link has expired");
     }
 
     // Serve the reset password HTML page
@@ -151,24 +150,18 @@ exports.updatePassword = async (req, res) => {
     const updatedPassword = req.body.password; // to call by element name or id attribute
     const response = await ForgotPasswordRequest.findByPk(requestId);
 
+     // Check whether the request id is active or not
     if (response.isActive) {
-      // Check whether the request id is active or not
-
       if (updatedPassword.split(" ").join("").length < 8) {
         // Check for the password length
-        return res
-          .status(400)
-          .render("resetpassword", { requestId: requestId, success: false });
+        return res.status(400).render("resetpassword", { requestId: requestId, success: false });
       }
 
       const saltRounds = 10;
       const password = await hashPassword(updatedPassword, saltRounds); // Call the hashPassword function and await its result
       const userId = response.userId;
       await User.update({ password: password }, { where: { id: userId } });
-      await ForgotPasswordRequest.update(
-        { isActive: "false" },
-        { where: { id: response.id } }
-      );
+      await ForgotPasswordRequest.update({ isActive: "false" }, { where: { id: response.id } });
       res.status(200).send(`<script>
             alert("Your expense tracker app password has been successfully updated. You're all set to manage your finances securely.");
             window.location.href = 'http://127.0.0.1:5500/Frontend/html/login.html';

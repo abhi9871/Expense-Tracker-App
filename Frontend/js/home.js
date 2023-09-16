@@ -102,11 +102,8 @@ function expenseDetailsOnScreen(expenseData) {
     const amountCell = document.createElement('td');
     const actionBtns = document.createElement('td');
 
-    // Retrieving the date and store it in a variable
-    const createdAtValue = expenseData.createdAt;
-
     // Convert the string to a Date object
-    const date = new Date(createdAtValue);
+    const date = new Date(expenseData.date);
 
     // Get individual components (year, month, day)
     const day = date.getDate();
@@ -160,7 +157,7 @@ function expenseDetailsOnScreen(expenseData) {
 // Create an expense function
 async function addExpense(expenseDataObj) {
     try{
-        const response = await axios.post('http://localhost:5000/expense/create-expense', expenseDataObj, { headers: { "Authorization": `${token}` }});
+        const response = await axios.post('http://localhost:5000/expense/create-expense', expenseDataObj, { headers: { "Authorization": token }});
         if(response.data.success){
         const expenseData = response.data.data;
         expenseDetailsOnScreen(expenseData);

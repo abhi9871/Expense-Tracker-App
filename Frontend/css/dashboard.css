@@ -1,5 +1,14 @@
-.state:hover, .state:active, .state:focus {
-    background-color: black;
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f5f5f5;
+}
+.chart-container {
+    height: 80vh;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .toast {
@@ -20,7 +29,4 @@
   .heading-animation {
     animation: fadeIn 1.5s forwards;
   }
-
-#report-container, #daily-heading, #daily-table, #weekly-heading, #weekly-table, #monthly-heading, #monthly-table {
-    display: none;
-}
+  

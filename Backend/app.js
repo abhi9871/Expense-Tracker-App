@@ -17,6 +17,7 @@ const expenseRoutes = require('./routes/expense');
 const purchaseRoutes = require('./routes/purchase');
 const leaderboardRoutes = require('./routes/leaderboard');
 const resetPasswordRoutes = require('./routes/resetpassword');
+const reportRoutes = require('./routes/report');
 const User = require('./models/user');
 const Expense = require('./models/expense');
 const Order = require('./models/order');
@@ -42,6 +43,7 @@ app.use('/expense', expenseRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/premium', leaderboardRoutes);
 app.use('/password', resetPasswordRoutes);
+app.use('/report', reportRoutes);
 
 sequelize.sync()
 .then(() => {

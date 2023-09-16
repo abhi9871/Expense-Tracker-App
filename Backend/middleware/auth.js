@@ -5,7 +5,7 @@ const dotEnv = require('dotenv').config(); // To access env variables
 const authenticate = async (req, res, next) => {
     try {
         const token = req.header('Authorization');
-        const userObj = jwt.verify(token, process.env.SECRET_KEY); // It will get id and name after decryption as an object
+        const userObj = jwt.verify(token, process.env.TOKEN_SECRET_KEY); // It will get id and name after decryption as an object
         const userId = userObj.id;
         const user = await User.findByPk(userId);
         if(user){

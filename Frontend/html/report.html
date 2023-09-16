@@ -1,14 +1,19 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html> -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Include Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <!-- Include the monthSelect plugin CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <link rel="stylesheet" href="../css/home.css">
     <link rel="stylesheet" href="../css/report.css">
-    <title>Expense Report</title>
+    <title>Expense Reports</title>
 </head>
 <body>
     <header>
@@ -29,19 +34,19 @@
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="#" class="nav-link text-white">
+                  <a href="dashboard.html" class="nav-link text-white">
                     <i class="bi bi-speedometer2 d-block mx-4 mb-1 list-font-style"></i>
                     Dashboard
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="report.html" class="nav-link text-white">
+                  <a href="#" class="nav-link text-white">
                     <i class="bi bi-file-earmark-bar-graph mx-3 mb-1 d-block list-font-style"></i>
                     Reports
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="#" class="nav-link text-white" id="leaderboard">       
+                  <a href="leaderboard.html" class="nav-link text-white" id="leaderboard">       
                     <i class="bi bi-trophy mx-4 mb-1 d-block list-font-style"></i>
                     Leaderboard
                   </a>
@@ -75,17 +80,44 @@
       <section>
         <div class="container">
           <div class="my-4 bg-dark text-white py-4 px-3 rounded border-shadow text-center">
-            <h2>EXPENSE REPORT <span>&#128202</span></h2>
+            <h2 class="heading-animation">EXPENSE REPORTS <span>&#128210</span></h2>
         </div>
-        <div class="container mb-4">
-        <div class="d-flex justify-content-around">
-            <button class="btn btn-secondary btn-lg rounded-pill shadow state">Daily</button>
-            <button class="btn btn-secondary btn-lg rounded-pill shadow state">Monthly</button>
-            <button class="btn btn-secondary btn-lg rounded-pill shadow state">Yearly</button>
+        <div class="row my-4 justify-content-between">
+            <div class="col-md-3 mb-4">
+                <h3>Daily Report</h3>
+                <input type="text" id="dailyDatePicker" class="form-control" placeholder="Select Date" required>
+                <div class="d-flex justify-content-between mt-2">
+                <button id="generateDailyReport" class="btn btn-secondary rounded-pill shadow state">Daily Report</button>
+                <!-- Download Button -->
+                <button id="dailyDownloadReport" class="btn btn-secondary btn-lg rounded-pill shadow state bi bi-download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download Daily Report">         
+                </button>
+              </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h3>Weekly Report</h3>
+                <input type="text" id="weeklyDatePicker" class="form-control" placeholder="Select Week" required>
+                <div class="d-flex justify-content-between mt-2">
+                  <button id="generateWeeklyReport" class="btn btn-secondary rounded-pill shadow state">Weekly Report</button>
+                  <!-- Download Button -->
+                  <button id="weeklyDownloadReport" class="btn btn-secondary btn-lg rounded-pill shadow state bi bi-download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download Weekly Report">
+                  </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h3>Monthly Report</h3>
+                <input type="text" id="monthlyDatePicker" class="form-control" placeholder="Select Month" required>
+                <div class="d-flex justify-content-between mt-2">
+                  <button id="generateMonthlyReport" class="btn btn-secondary rounded-pill shadow state">Monthly Report</button>
+                  <!-- Download Button -->
+                  <button id="monthlyDownloadReport" class="btn btn-secondary btn-lg rounded-pill shadow state bi bi-download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download Monthly Report">
+                  </button>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="expense-details bg-secondary-subtle p-2 rounded border-shadow table-responsive">
-      <table class="table table-striped text-center my-2">
+    <div class="expense-details bg-secondary-subtle p-2 rounded border-shadow table-responsive" id="report-container">
+        <!-- Daily Report Table -->
+      <h2 class="text-center" id="daily-heading">Daily Report</h2>
+      <table class="table table-striped text-center my-2" id="daily-table">
         <thead>
           <tr>
             <th><i class="bi bi-calendar3 table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Date"></i></th>
@@ -94,29 +126,75 @@
             <th><i class="bi bi-currency-rupee table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Amount"></i></th>
           </tr>
         </thead>
-        <tbody id="expense-table-body">
+        <tbody id="daily-expense-table-body">
         </tbody>
-        <tfoot id="footer">
+        <tfoot id="daily-footer">
           <tr>
             <td></td>
             <td></td>
-            <td id="footer-total">Total Amount</td>
-            <td id="footer-amount">25000</td>
+            <td class="fw-bold">Total Amount</td>
+            <td id="daily-footer-amount" class="fw-bold"></td>
+          </tr>
+      </tfoot>
+      </table>
+
+      <!-- Weekly Report Table -->
+      <h2 class="text-center" id="weekly-heading">Weekly Report</h2>
+      <table class="table table-striped text-center my-2" id="weekly-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-calendar3 table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Date"></i></th>
+            <th><i class="bi bi-list-task table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Category"></i></th>
+            <th><i class="bi bi-receipt table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Description"></i></th>
+            <th><i class="bi bi-currency-rupee table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Amount"></i></th>
+          </tr>
+        </thead>
+        <tbody id="weekly-expense-table-body">
+        </tbody>
+        <tfoot id="weekly-footer">
+          <tr>
+            <td></td>
+            <td></td>
+            <td class="fw-bold">Total Amount</td>
+            <td id="weekly-footer-amount" class="fw-bold"></td>
+          </tr>
+      </tfoot>
+      </table>
+
+      <!-- Monthly Report Table -->
+      <h2 class="text-center" id="monthly-heading">Monthly Report</h2>
+      <table class="table table-striped text-center my-2" id="monthly-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-calendar3 table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Date"></i></th>
+            <th><i class="bi bi-list-task table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Category"></i></th>
+            <th><i class="bi bi-receipt table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Description"></i></th>
+            <th><i class="bi bi-currency-rupee table-heading" data-bs-toggle="tooltip" data-bs-placement="top" title="Amount"></i></th>
+          </tr>
+        </thead>
+        <tbody id="monthly-expense-table-body">
+        </tbody>
+        <tfoot id="monthly-footer">
+          <tr>
+            <td></td>
+            <td></td>
+            <td class="fw-bold">Total Amount</td>
+            <td id="monthly-footer-amount" class="fw-bold"></td>
           </tr>
       </tfoot>
       </table>
     </div>
-      <div class="d-flex justify-content-end my-4">
-        <!-- Download Button -->
-        <button class="btn btn-secondary btn-lg rounded-pill shadow state" data-bs-toggle="tooltip" data-bs-placement="top" title="Download">
-          <i class="bi bi-download fs-2"></i>
-        </button>
-      </div>
     </div>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Include Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Include Flatpickr MonthSelect plugin JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+    <script src="../js/report.js"></script>
     <script src="../js/logout.js"></script>
     <script src="../js/toggle.js"></script>
 </body>
