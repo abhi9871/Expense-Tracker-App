@@ -26,6 +26,16 @@ async function updateUserTotalExpenses(userId, amount, transaction) {
  }
 }
 
+// Count no. of expenses
+async function expensesCount(userId) {
+    try {
+        const count = await Expense.count({ where: { userId: userId }});
+        return count;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+}
+
 // Create an expense with the transaction
 exports.addExpense = async (req, res) => {
     try {
@@ -39,6 +49,8 @@ exports.addExpense = async (req, res) => {
 
         // Start the transaction
         t = await startTransaction();
+
+        // Add expense to the expense table
         const expense = await Expense.create({
             category: category,
             description: description,
@@ -46,13 +58,16 @@ exports.addExpense = async (req, res) => {
             userId: userId
         }, { transaction: t });
 
+        // Count no.of expenses
+        const countExpenses = await expensesCount(userId);
+
         // Update user total expenses in the database as well with the same transaction
-            await updateUserTotalExpenses(userId, amount, t);
+        await updateUserTotalExpenses(userId, amount, t);
 
         // Commit the transaction if everything is successful
-            await t.commit();
+        await t.commit();
 
-            res.status(200).json({ success: true, data: expense });
+        res.status(200).json({ success: true, data: expense, expensesCount: countExpenses });
     } catch (err) {
             // Rollback the transaction if an error occurs
             await t.rollback();
@@ -64,12 +79,25 @@ exports.addExpense = async (req, res) => {
 // Get all the expenses for a particular user
 exports.getExpenses = async (req, res) => {
     try {
-       const expenses = await Expense.findAll({
+       const page = Number(req.query.page) || 1;
+       const limit = 5;
+       let offset;
+
+       // Check for the valid page number and it should be greater than 0
+       if(!Number.isNaN(page) && page > 0) {
+            offset = (page - 1) * limit;
+       }
+
+       const expenses = await Expense.findAndCountAll({
         where: {
             userId: req.user.id
-        }
+        },
+        limit: 5,
+        offset: offset
        });
-       res.status(200).json({ success: true, data: expenses });
+       const rows = expenses.rows;
+       const totalCount = expenses.count;
+       res.status(200).json({ success: true, rows, totalCount });
     } catch (err) {
         console.log(err);
         res.status(500).json({ success: false, message: 'An error occurred while fetching expenses.' });
@@ -148,6 +176,7 @@ exports.deleteExpenseById = async (req, res) => {
     try {
         let t; // Declare a transaction variable
         const expenseId = req.params.expenseId;
+        const userId = req.user ? req.user.id : null;
 
         // Start the transaction
         t = await startTransaction();
@@ -171,7 +200,10 @@ exports.deleteExpenseById = async (req, res) => {
             // Commit the transaction if everything is successful
             await t.commit();
 
-            res.status(200).json({ success: true, message: 'Expense has been deleted' });
+            // Count no.of expenses
+            const countExpenses = await expensesCount(userId);
+
+            res.status(200).json({ success: true, countExpenses, message: 'Expense has been deleted' });
         } else {
             // Rollback the transaction if an error occurs
             await t.rollback();

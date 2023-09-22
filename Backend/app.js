@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('path');
 const sequelize = require('./utils/database');
 const dotenv = require('dotenv');
 dotenv.config();    // To use env file variables

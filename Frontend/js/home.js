@@ -151,21 +151,53 @@ function expenseDetailsOnScreen(expenseData) {
     tr.appendChild(actionBtns);
 
     expenseTableBody.appendChild(tr);
+}
 
+// Return page number
+function pageNumber(expensesCount) {
+    return Math.ceil(expensesCount/5);
+}
+
+//Show pagination
+function showPagination(expensesCount) {
+    const totalPagesBtn = pageNumber(expensesCount);
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = '';
+    for(let i = 1; i <= totalPagesBtn; i++){
+        const btn = document.createElement('button');
+        btn.className='btn btn-light btn-sm m-1'
+        btn.setAttribute('id', i);
+        btn.textContent = i;
+        btn.addEventListener('click', () => {
+            localStorage.setItem('currentPage', i);
+            getExpenses(i);   
+        });
+        paginationContainer.appendChild(btn);
+}
 }
 
 // Create an expense function
 async function addExpense(expenseDataObj) {
     try{
-        const response = await axios.post('http://localhost:5000/expense/create-expense', expenseDataObj, { headers: { "Authorization": token }});
+        const response = await axios.post('http://localhost:5000/expense/add-expense', expenseDataObj, { headers: { "Authorization": token }});
         if(response.data.success){
-        const expenseData = response.data.data;
-        expenseDetailsOnScreen(expenseData);
+            const expenseData = response.data.data;
+            const expensesCount = response.data.expensesCount;
+            const pageNo = pageNumber(expensesCount);
+            if(expensesCount % 5 === 0){
+                expenseTableBody.innerHTML = '';
+                getExpenses(pageNo);
+            }
+            else {
+                expenseDetailsOnScreen(expenseData);
+            }
         }
     } catch(err) {
-        const error = err.response.data.message;
-        toastr.error(error);
         console.log(err);
+        if (err.response && err.response.data && err.response.data.success === false) {
+            const errorMessage = err.response.data.message;
+            toastr.error(errorMessage);
+        }
     }
 }
 
@@ -183,8 +215,7 @@ async function getExpense(expenseId) {
             amount.value = expense.amount;
 
             //Changing the button value add to update expense
-            if(isEdit)
-                expenseBtn.textContent = 'Update Expense';
+            expenseBtn.textContent = 'Update Expense';
         }   
     } catch(err) {
         const error = err.response.data.message;
@@ -194,14 +225,17 @@ async function getExpense(expenseId) {
 }
 
 // Get all the expenses function
-async function getExpenses() {
+async function getExpenses(pageNumber) {
     try{
-        const response = await axios.get('http://localhost:5000/expense/get-expenses', { headers: { "Authorization": token } });
+        const response = await axios.get(`http://localhost:5000/expense/get-expenses?page=${pageNumber}`, { headers: { "Authorization": token } });
         if(response.data.success){
-            const expenseData = response.data.data;
+            const expenseData = response.data.rows;
+            expenseTableBody.innerHTML = '';
             expenseData.forEach((expense) => {
                 expenseDetailsOnScreen(expense);
-            })
+            });
+
+            showPagination(response.data.totalCount);
         }   
     } catch(err) {
         console.log(err);
@@ -238,8 +272,19 @@ async function deleteExpense(expenseId) {
     try{
         const response = await axios.delete(`http://localhost:5000/expense/delete-expense/${expenseId}`, { headers: { "Authorization": `${token}` }});
         if(response.data.success){
-            const expenseData = response.data;
-            toastr.success(expenseData.message);
+            const expensesCount = response.data.countExpenses;
+            const pageNo = pageNumber(expensesCount);
+            if(expensesCount === 0){
+                getExpenses();
+            }
+            else if(expensesCount % 5 === 0){
+                getExpenses(pageNo);
+            }
+            else {
+                const currentPage = localStorage.getItem('currentPage');
+                getExpenses(currentPage);
+            }
+            toastr.success(response.data.message);
         }
     } catch(err) {
         if (err.response && err.response.data && err.response.data.success === false) {
@@ -277,5 +322,5 @@ window.addEventListener('DOMContentLoaded', () => {
     showPremiumUser(isPremiumUser);
 
     // Fetching the data on screen reload
-    getExpenses();
+    getExpenses(1);
 });

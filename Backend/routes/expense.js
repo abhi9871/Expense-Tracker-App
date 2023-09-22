@@ -4,7 +4,7 @@ const userAuthentication = require('../middleware/auth');
 const router = express.Router();
 
 // Create an expense route
-router.post('/create-expense', userAuthentication.authenticate, expenseController.addExpense);
+router.post('/add-expense', userAuthentication.authenticate, expenseController.addExpense);
 
 // Get all the expenses by the user id route
 router.get('/get-expenses', userAuthentication.authenticate, expenseController.getExpenses);
