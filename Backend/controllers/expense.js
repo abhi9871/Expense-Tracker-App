@@ -80,7 +80,7 @@ exports.addExpense = async (req, res) => {
 exports.getExpenses = async (req, res) => {
     try {
        const page = Number(req.query.page) || 1;
-       const limit = 5;
+       const limit = Number(req.query.limit) || 5;
        let offset;
 
        // Check for the valid page number and it should be greater than 0
@@ -92,7 +92,7 @@ exports.getExpenses = async (req, res) => {
         where: {
             userId: req.user.id
         },
-        limit: 5,
+        limit: limit,
         offset: offset
        });
        const rows = expenses.rows;

@@ -3,6 +3,7 @@ const expenseTableBody = document.getElementById('expense-table-body');
 const expenseBtn = document.getElementById('expense-btn');
 let isEdit = false; // Flag to check whether the expense needs to update or not.
 const token = localStorage.getItem('token');
+let recordLimit = document.getElementById('records');
 
 // Initialize Toastr options
 toastr.options = {
@@ -153,9 +154,31 @@ function expenseDetailsOnScreen(expenseData) {
     expenseTableBody.appendChild(tr);
 }
 
+// Choose no. of records limit for a page
+function handleSelectChange() {
+    const selectedValue = recordLimit.value;
+    return Number(selectedValue);
+}
+
+recordLimit.addEventListener('change', () => {
+    const noOfRecords = handleSelectChange();
+    localStorage.setItem('limit', noOfRecords);
+    localStorage.setItem('currentPage', 1);  // Set current page while choosing no. of records per page
+    const currentPage = Number(localStorage.getItem('currentPage'));
+    getExpenses(currentPage, noOfRecords);
+});
+
+// Returns limit for each page
+function noOfRecordsPerPage() {
+    const limit = localStorage.getItem('limit');
+    const limitPerPage = (limit !== null) ? Number(limit) : 5;
+    return limitPerPage;
+}
+
 // Return page number
 function pageNumber(expensesCount) {
-    return Math.ceil(expensesCount/5);
+    const limit = noOfRecordsPerPage();
+    return Math.ceil(expensesCount/limit);
 }
 
 //Show pagination
@@ -163,6 +186,7 @@ function showPagination(expensesCount) {
     const totalPagesBtn = pageNumber(expensesCount);
     const paginationContainer = document.getElementById('pagination');
     paginationContainer.innerHTML = '';
+    const limit = noOfRecordsPerPage();
     for(let i = 1; i <= totalPagesBtn; i++){
         const btn = document.createElement('button');
         btn.className='btn btn-light btn-sm m-1'
@@ -170,7 +194,7 @@ function showPagination(expensesCount) {
         btn.textContent = i;
         btn.addEventListener('click', () => {
             localStorage.setItem('currentPage', i);
-            getExpenses(i);   
+            getExpenses(i, limit);   
         });
         paginationContainer.appendChild(btn);
 }
@@ -183,13 +207,15 @@ async function addExpense(expenseDataObj) {
         if(response.data.success){
             const expenseData = response.data.data;
             const expensesCount = response.data.expensesCount;
-            const pageNo = pageNumber(expensesCount);
-            if(expensesCount % 5 === 0){
+            const pageNo = localStorage.getItem('currentPage');
+            const limit = noOfRecordsPerPage();
+            if(pageNo * limit < expensesCount){
                 expenseTableBody.innerHTML = '';
-                getExpenses(pageNo);
+                getExpenses(pageNo, limit);
             }
             else {
                 expenseDetailsOnScreen(expenseData);
+                getExpenses(pageNo, limit);
             }
         }
     } catch(err) {
@@ -225,9 +251,9 @@ async function getExpense(expenseId) {
 }
 
 // Get all the expenses function
-async function getExpenses(pageNumber) {
+async function getExpenses(pageNumber, limit) {
     try{
-        const response = await axios.get(`http://localhost:5000/expense/get-expenses?page=${pageNumber}`, { headers: { "Authorization": token } });
+        const response = await axios.get(`http://localhost:5000/expense/get-expenses?page=${pageNumber}&limit=${limit}`, { headers: { "Authorization": token } });
         if(response.data.success){
             const expenseData = response.data.rows;
             expenseTableBody.innerHTML = '';
@@ -274,15 +300,13 @@ async function deleteExpense(expenseId) {
         if(response.data.success){
             const expensesCount = response.data.countExpenses;
             const pageNo = pageNumber(expensesCount);
-            if(expensesCount === 0){
-                getExpenses();
-            }
-            else if(expensesCount % 5 === 0){
-                getExpenses(pageNo);
+            const currentPage = localStorage.getItem('currentPage');
+            const limit = noOfRecordsPerPage();
+             if(expensesCount % limit === 0){
+                getExpenses(pageNo, limit);
             }
             else {
-                const currentPage = localStorage.getItem('currentPage');
-                getExpenses(currentPage);
+                getExpenses(currentPage, limit);
             }
             toastr.success(response.data.message);
         }
@@ -321,6 +345,10 @@ window.addEventListener('DOMContentLoaded', () => {
     //Check whether an user is a premium user or not on reload
     showPremiumUser(isPremiumUser);
 
-    // Fetching the data on screen reload
-    getExpenses(1);
+    // Fetching the data on screen reload along with the record per page
+    const limit = Number(recordLimit.value);
+    localStorage.setItem('currentPage', 1); // When someone add expense first time in that case default page will be 1
+    localStorage.setItem('limit', limit);
+    const currentPage = Number(localStorage.getItem('currentPage'));
+    getExpenses(currentPage, limit);
 });

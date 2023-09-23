@@ -127,8 +127,20 @@
               <tbody class="text-center" id="expense-table-body">
               </tbody>
             </table>
-            <div id="pagination" class="d-flex justify-content-center"></div>
-          </div>      
+            <div class="row">
+              <div class="col-md-6 d-flex align-items-center mb-2">
+                <p class="m-0 me-2">No. of records:</p>
+                <select id="records" class="form-select w-auto">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="40">40</option>
+                </select>
+                <p class="m-0 ms-2">per page</p>
+              </div>
+              <div id="pagination" class="col-md-6 d-flex justify-content-end align-items-center"></div>
+            </div>         
+        </div> 
         </div>
       </section>
       <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
