@@ -1,4 +1,8 @@
 const express = require('express');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const path = require('path');
+const fs = require('fs');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const sequelize = require('./utils/database');
@@ -33,6 +37,12 @@ Order.belongsTo(User);
 // Relation b/w user and forgotpasswordrequest
 User.hasMany(ForgotPasswordRequest);
 ForgotPasswordRequest.belongsTo(User);
+
+// Creating a file for logging activities and errors
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'),{ flags: 'a' });
+
+app.use(helmet());
+app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));

@@ -46,8 +46,8 @@ exports.forgotPassword = async (req, res) => {
     apiKey.apiKey = process.env.BREVO_KEY;
     const transEmailApi = new Brevo.TransactionalEmailsApi();
     const sender = {
-      email: "abhishektomar0802@gmail.com",
-      name: "Abhishek",
+      email: process.env.SENDER_EMAIL,
+      name: process.env.SENDER_NAME,
     };
     const receivers = [
       {
