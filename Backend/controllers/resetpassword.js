@@ -95,7 +95,7 @@ exports.forgotPassword = async (req, res) => {
                 <p>Regain control of your financial journey! Reset your password and stay on top of your expenses with ease.</p>
                 <p>Hi {{params.userName}}! We received a request from you to reset your password. Click the button below to reset your password:</p>
                 <div class="reset-link">
-                <a href="http://localhost:5000/password/resetpassword/{{params.requestId}}" class="button">Reset Password</a>
+                <a href=http://${process.env.HOST}:5000/password/resetpassword/{{params.requestId}} class="button">Reset Password</a>
                 </div>
             </div>
         </body>
@@ -162,10 +162,7 @@ exports.updatePassword = async (req, res) => {
       const userId = response.userId;
       await User.update({ password: password }, { where: { id: userId } });
       await ForgotPasswordRequest.update({ isActive: "false" }, { where: { id: response.id } });
-      res.status(200).send(`<script>
-            alert("Your expense tracker app password has been successfully updated. You're all set to manage your finances securely.");
-            window.location.href = 'http://127.0.0.1:5500/Frontend/html/login.html';
-            </script>`);
+      res.status(200).render("backtologin", { host: process.env.HOST });
     } else {
       res.status(404).send("This link is expired");
     }

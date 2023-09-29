@@ -30,7 +30,7 @@ async function forgotPassword(e) {
         toastr.info(response.data.message, 'Reset Link');
         setTimeout(() => {
             window.location.href = 'http://127.0.0.1:5500/Frontend/html/login.html';
-        }, 3000)
+        }, 2000)
     }
  } catch(err) {
     if(!err.response.data.success){

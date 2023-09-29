@@ -8,7 +8,7 @@ dotenv.config();
 const generateDailyReport = async (req, res) => {
     try {
         const { dailyReportDate } = req.body;
-        const dailyExpenses = await Expense.findAll({ where: { date: dailyReportDate  } });
+        const dailyExpenses = await Expense.findAll({ where: { date: dailyReportDate, userId: req.user.id  } });
         if(dailyExpenses){
             res.status(200).json({ success: true, dailyExpenses });
         }
@@ -21,7 +21,7 @@ const generateDailyReport = async (req, res) => {
 const generateWeeklyReport = async (req, res) => {
     try {
         const { weeklyStartDate, weeklyEndDate } = req.body;
-        const weeklyExpenses = await Expense.findAll({ where: { date: { [Op.between]: [weeklyStartDate, weeklyEndDate] } } });
+        const weeklyExpenses = await Expense.findAll({ where: { date: { [Op.between]: [weeklyStartDate, weeklyEndDate] }, userId: req.user.id } });
         if(weeklyExpenses){
             res.status(200).json({ success: true, weeklyExpenses });
         }
@@ -34,7 +34,7 @@ const generateWeeklyReport = async (req, res) => {
 const generateMonthlyReport = async (req, res) => {
     try {
         const { monthNumber } = req.body;
-        const monthlyExpenses = await Expense.findAll({ where:  Sequelize.literal(`MONTH(date) = ${monthNumber}`) });
+        const monthlyExpenses = await Expense.findAll({ where: Sequelize.literal(`MONTH(date) = ${monthNumber} AND userId = ${req.user.id}`) });
         if(monthlyExpenses) {
             res.status(200).json({ success: true, monthlyExpenses });
         }
@@ -101,15 +101,15 @@ const downloadReport = async (req, res) => {
        let filePath;
        if(type === 'daily') {
             const { dailyReportDate } = req.body;
-            expensesReport = await Expense.findAll({ attributes: ['date', 'category', 'description', 'amount'], where: { date: dailyReportDate  }});
+            expensesReport = await Expense.findAll({ attributes: ['date', 'category', 'description', 'amount'], where: { date: dailyReportDate, userId: req.user.id  }});
             filePath = `${type}_report_${new Date(dailyReportDate).getDate()}`;
        } else if(type === 'weekly') {
             const { weeklyStartDate, weeklyEndDate } = req.body;
-            expensesReport = await Expense.findAll({ attributes: ['date', 'category', 'description', 'amount'], where: { date: { [Op.between]: [weeklyStartDate, weeklyEndDate] } } });
+            expensesReport = await Expense.findAll({ attributes: ['date', 'category', 'description', 'amount'], where: { date: { [Op.between]: [weeklyStartDate, weeklyEndDate] }, userId: req.user.id } });
             filePath = `${type}_report_(${new Date(weeklyStartDate).getDate()}-${new Date(weeklyEndDate).getDate()})`;
        } else {
             const { monthNumber } = req.body;
-            expensesReport = await Expense.findAll({ attributes: ['date', 'category', 'description', 'amount'], where:  Sequelize.literal(`MONTH(date) = ${monthNumber}`) });
+            expensesReport = await Expense.findAll({ attributes: ['date', 'category', 'description', 'amount'], where: Sequelize.literal(`MONTH(date) = ${monthNumber} AND userId = ${req.user.id}`) });
             filePath = `${type}_report_${monthNumber}`;
        }
        const report = showDataIntoCSV(expensesReport);

@@ -32,7 +32,7 @@ function parseJwt (token) {
 
 async function showDashboard() {
     try {
-        const response = await axios.get("http://localhost:5000/expense/get-expenses", { headers: { Authorization: token } });
+        const response = await axios.get("http://localhost:5000/expense/dashboard", { headers: { Authorization: token } });
         if (response.data.success) {
           const expenses = response.data.data;
           // Group and sum expenses by category
