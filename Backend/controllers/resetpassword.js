@@ -41,6 +41,7 @@ exports.forgotPassword = async (req, res) => {
       userId: user.id,
     });
 
+    // Integrating email brevo functionality once the user's mail is verified
     const client = Brevo.ApiClient.instance;
     const apiKey = client.authentications["api-key"];
     apiKey.apiKey = process.env.BREVO_KEY;
